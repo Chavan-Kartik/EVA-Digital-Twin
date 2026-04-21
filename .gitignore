@@ -1,0 +1,19 @@
+# Python Virtual Environment
+.venv/
+__pycache__/
+
+# Massive Data Files & Databases
+WESAD/
+*.pkl
+mission_db_v2.pkl
+real_mission_data.pkl
+
+# AI Weights (Optional, but recommended as .pth files can be >100MB)
+*.pth
+
+# React Frontend Dependencies
+frontend/node_modules/
+frontend/dist/
+
+# OS Generated Files
+.DS_Store
