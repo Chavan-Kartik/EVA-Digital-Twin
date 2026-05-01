@@ -38,6 +38,11 @@ The predictive core is built on a custom **Spatio-Temporal Long Short-Term Memor
 
 ## 🚀 Installation & Local Deployment
 
+### 📥 Download Mission Data & AI Weights
+Because aerospace telemetry and deep learning weights exceed GitHub's file size limits, the data is hosted securely in the cloud. Before booting the server, please download the following files and place them in the root directory:
+* [Download attention_model.pth (Weights) Here](https://drive.google.com/file/d/1LazrWzEGQ7Mkb7_Hy-jVzuvywSbRjfFV/view?usp=sharing)
+* [Download real_mission_data_4D.pkl (Telemetry) Here](https://drive.google.com/file/d/17v2vvrQtoK2lG8SefOyzoIVgx7mZNPwU/view?usp=sharing)
+
 ### 1. Boot the Deep Learning Backend
 Navigate to the root directory, activate your virtual environment, and install dependencies:
 ```bash
