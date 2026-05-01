@@ -17,34 +17,34 @@ app.add_middleware(
 )
 
 # ==========================================
-# PHASE 2: THE ATTENTION ARCHITECTURE
+# PHASE 2: THE 4D ATTENTION ARCHITECTURE
 # ==========================================
-class AttentionFatigueModel(nn.Module):
-    def __init__(self, input_size=4, hidden_size=64, num_layers=2):
-        super(AttentionFatigueModel, self).__init__()
-        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True, dropout=0.2)
-        self.attention_layer = nn.Linear(hidden_size, 1)
-        self.fc = nn.Linear(hidden_size, 1)
+class AttentionLSTM(nn.Module):
+    def __init__(self, input_dim=4, hidden_dim=64, num_layers=2): # 4 DIMENSIONS
+        super(AttentionLSTM, self).__init__()
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=0.3)
+        self.attention_weights = nn.Linear(hidden_dim, 1)
+        self.fc = nn.Linear(hidden_dim, 1)
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, x):
-        lstm_out, _ = self.lstm(x) 
-        attn_weights = self.attention_layer(lstm_out)
-        attn_weights = torch.softmax(attn_weights, dim=1) 
-        context_vector = torch.sum(attn_weights * lstm_out, dim=1)
+        lstm_out, _ = self.lstm(x)
+        attention_scores = torch.tanh(self.attention_weights(lstm_out))
+        attention_dist = torch.softmax(attention_scores, dim=1)
+        context_vector = torch.sum(attention_dist * lstm_out, dim=1)
         prediction = self.sigmoid(self.fc(context_vector))
-        return prediction, attn_weights.squeeze(-1)
+        return prediction, attention_dist
 
 # ==========================================
 # LOAD FLIGHT-READY RESOURCES
 # ==========================================
-print("Booting Deep Learning Attention Core...")
-model = AttentionFatigueModel()
+print("Booting 4D Deep Learning Attention Core...")
+model = AttentionLSTM()
 model.load_state_dict(torch.load('attention_model.pth', weights_only=True))
 model.eval()
 
-print("Loading 4D Mission Database (mission_db_v2.pkl)...")
-with open('mission_db_v2.pkl', 'rb') as f:
+print("Loading 4D Mission Database (real_mission_data_4D.pkl)...")
+with open('real_mission_data_4D.pkl', 'rb') as f:
     mission_db = pickle.load(f)
 
 print("✅ WebSockets Online. Awaiting Mission Control connection.")
@@ -52,22 +52,20 @@ print("✅ WebSockets Online. Awaiting Mission Control connection.")
 @app.get("/api/crew")
 def get_crew():
     return {"crew_members": list(mission_db.keys())}
+
 @app.get("/api/query/{subject}/{time_sec}")
 def query_deep_history(subject: str, time_sec: int):
     if subject not in mission_db:
         return {"status": "error", "message": "Astronaut not found"}
         
     telemetry = mission_db[subject]['telemetry']
-    
-    # The server processes data in 30-second windows. 
-    # We find the exact window that contains the requested second.
     window_idx = time_sec // 30
     
     if window_idx >= len(telemetry):
         return {"status": "error", "message": f"T+ {time_sec}s exceeds mission database length."}
         
-    # Extract the true mathematical data from that exact window
-    ecg, resp, temp, hrv = telemetry[window_idx]
+    # Extract the true mathematical data (Now with EDA)
+    ecg, resp, temp, eda = telemetry[window_idx]
     
     return {
         "status": "found",
@@ -76,7 +74,7 @@ def query_deep_history(subject: str, time_sec: int):
             "ecg": float(ecg),
             "resp": float(resp),
             "temp": float(temp),
-            "hrv": float(hrv)
+            "hrv": float(eda) # Updated to EDA
         }
     }
 
@@ -94,21 +92,18 @@ async def telemetry_stream(websocket: WebSocket, subject: str):
     telemetry = mission_db[subject]['telemetry']
     ground_truth = mission_db[subject]['ground_truth']
     
-    # i represents the current time step (each row is a 30-sec window)
     i = 0 
     
     try:
         while True:
-            # Loop the simulation if we run out of data
             if i >= len(telemetry):
                 i = 0 
                 
-            # 1. Extract the 4 variables from the current frame
-            ecg, resp, temp, hrv = telemetry[i]
+            # 1. Extract the 4 variables (Now with EDA)
+            ecg, resp, temp, eda = telemetry[i]
             actual_state = ground_truth[i]
             
-            # --- LIVE AI INFERENCE ---
-            # We feed the last 5 sequences into the model
+            # --- LIVE 4D AI INFERENCE ---
             if i >= 5:
                 window_data = telemetry[i-5:i]
                 tensor_data = torch.tensor(window_data, dtype=torch.float32).unsqueeze(0)
@@ -116,33 +111,29 @@ async def telemetry_stream(websocket: WebSocket, subject: str):
                 with torch.no_grad():
                     prediction, attention = model(tensor_data)
                     fatigue_prob = float(prediction.item())
-                    
-                    # TRUE XAI: How much the AI is focusing on this exact moment (0.0 to 1.0)
                     current_attention = float(attention[0][-1].item()) 
             else:
                 fatigue_prob = 0.0
                 current_attention = 0.0
 
-            # 2. Server-Side XAI Integration for the React Charts
-            # We scale the biological deviations by the AI's actual attention weight!
+            # 2. Server-Side XAI Integration
             xai_impacts = {
                 "ecg": float(abs(ecg) * current_attention),
                 "resp": float(abs(resp) * current_attention),
                 "temp": float(abs(temp) * current_attention),
-                "hrv": float(abs(hrv) * current_attention)
+                "hrv": float(abs(eda) * current_attention) # Updated to EDA
             }
 
-            # 3. Format the data for the React charts
-            current_time_sec = i * 30 # Convert sequence step to mission seconds
+            # 3. Format the data for React
+            current_time_sec = i * 30 
             latest_second_data = [{
                 "second": current_time_sec,
                 "ecg": float(ecg),
                 "resp": float(resp),
                 "temp": float(temp),
-                "hrv": float(hrv)
+                "hrv": float(eda) # Updated to EDA
             }]
 
-            # Send payload to React instantly
             payload = {
                 "time_sec": current_time_sec,
                 "ai_fatigue_index": fatigue_prob,
@@ -153,8 +144,6 @@ async def telemetry_stream(websocket: WebSocket, subject: str):
             }
             
             await websocket.send_json(payload)
-            
-            # Move forward one sequence step and wait 1 second (Live Simulation)
             i += 1
             await asyncio.sleep(1)
             
