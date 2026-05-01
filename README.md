@@ -49,7 +49,7 @@ python server.py
 The server will boot the PyTorch weights and initialize the WebSocket stream on 
 ws://127.0.0.1:8000.
 
-2. Boot the Mission Control Dashboard
+ ### 2. Boot the Mission Control Dashboard
 Open a new terminal window, navigate to the frontend directory, and start the React app:
 cd frontend
 npm install

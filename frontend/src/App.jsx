@@ -283,7 +283,7 @@ export default function App() {
           <ActivitySquare /> MISSION STATS (VITALS)
         </button>
         <button onClick={() => setActiveTab('xai')} style={{ flex: 1, padding: '15px', borderRadius: '8px', border: 'none', backgroundColor: activeTab === 'xai' ? '#8b5cf6' : '#1e293b', color: activeTab === 'xai' ? '#fff' : 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: '0.2s' }}>
-          <BrainCircuit /> SHAP / XAI DIAGNOSTICS
+          <BrainCircuit /> ATTENTION / XAI DIAGNOSTICS
         </button>
         <button onClick={() => setActiveTab('suit')} style={{ flex: 1, padding: '15px', borderRadius: '8px', border: 'none', backgroundColor: activeTab === 'suit' ? '#f59e0b' : '#1e293b', color: activeTab === 'suit' ? '#0f172a' : 'white', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', transition: '0.2s' }}>
           <User /> SUIT & ENVIRONMENT
@@ -355,7 +355,7 @@ export default function App() {
         </div>
       )}
 
-      {/* TAB 2: TRUE SHAP / XAI DIAGNOSTICS */}
+      {/* TAB 2: TEMPORAL ATTENTION / XAI DIAGNOSTICS */}
       {activeTab === 'xai' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
           
