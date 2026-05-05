@@ -7,12 +7,12 @@
 ## 📋 Overview
 During Extravehicular Activities (EVAs) or high-stress operational tasks, an astronaut's cognitive load can spike dangerously before they consciously realize they are fatigued. The **EVA Digital Twin** is an edge-computing Artificial Intelligence architecture designed to predict cognitive fatigue *before* it causes a critical failure. 
 
-By streaming real-time physiological telemetry into a localized Spatio-Temporal deep learning model, this system acts as a live digital replica of the astronaut's central nervous system. It provides Mission Control with zero-latency threat detection and mathematically sound Explainable AI (XAI) diagnostics, ensuring the safety of human spaceflight.
+By streaming real-time physiological telemetry into a localized Spatio-Temporal deep learning model, this system acts as a live digital replica of the astronaut's central nervous system. It provides Mission Control with zero-latency threat detection and mathematically sound Explainable AI (XAI) feature in LSTM diagnostics, ensuring the safety of human spaceflight.
 
 ## ✨ Key Features
 * **Live Telemetry Stream:** Zero-latency WebSocket connection streaming 4-dimensional biological data (ECG, Respiration, Skin Temperature, and Electrodermal Activity).
 * **Deep Storage Architecture:** A rolling 3-minute frontend RAM buffer paired with a FastAPI REST endpoint that allows engineers to query historical "Deep Storage" timestamps without interrupting the live stream.
-* **Intrinsic Explainable AI (XAI):** Replaces computationally heavy Post-Hoc XAI (like SHAP) with a native **Temporal Attention Mechanism**. This generates live focus weights, revealing exactly which biological micro-events (e.g., sudden sweat gland activation) are driving the AI's cognitive load predictions.
+* **Intrinsic Explainable AI (XAI) inside LSTM:** Replaces computationally heavy Post-Hoc XAI (like SHAP) with a native **Temporal Attention Mechanism**. This generates live focus weights, revealing exactly which biological micro-events (e.g., sudden sweat gland activation) are driving the AI's cognitive load predictions.
 * **Aerospace-Grade Robustness:** The training pipeline incorporates controlled Gaussian noise injection and biological smoothing filters to simulate and overcome real-world aerospace sensor artifacts.
 
 ## 🧠 The AI Architecture (PyTorch)
